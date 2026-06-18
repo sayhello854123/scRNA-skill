@@ -1,0 +1,12 @@
+{
+  "method": "lognorm",
+  "nfeatures": 2000,
+  "min-features": 200,
+  "max-mt": 10,
+  "mt-pattern": "^MT-",
+  "dims": 30,
+  "resolution": [0.3, 0.5, 0.8],
+  "groupby": "seurat_clusters",
+  "figdir": "figures",
+  "seed": 42
+}
