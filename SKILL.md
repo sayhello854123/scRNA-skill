@@ -117,11 +117,21 @@ In v5, an assay holds **layers** (multiple count/data matrices, one per sample b
 
 ### 1. Quality Control
 
+**Single sample** — inspect violin/scatter plots, then filter:
+
 ```r
 obj[["percent.mt"]] <- PercentageFeatureSet(obj, pattern = "^MT-")  # "^mt-" for mouse
 VlnPlot(obj, c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 obj <- subset(obj, subset = nFeature_RNA > 200 & nFeature_RNA < 6000 & percent.mt < 10)
 ```
+
+**Multi-sample** — configure per-sample thresholds, then run DoubletFinder per sample before merging. The recommended pipeline (in `references/standard_workflow.md` Section 2b) is:
+
+1. Per-sample `sample_config` with individual `nFeature_min/max` and `percent_mt_max`
+2. Hard threshold filter → `NormalizeData` + `RunPCA` + `RunUMAP` (needed for DoubletFinder)
+3. `paramSweep` + `find.pK` automated pK selection; doublet rate ≈ 0.8 % per 1 000 cells
+4. `doubletFinder` → remove doublets → rebuild clean `CreateSeuratObject` from filtered counts
+5. `merge(..., add.cell.ids = names(processed))` to combine samples
 
 Use the script: `Rscript scripts/qc_analysis.R raw.rds -o qc.rds --min-features 200 --max-mt 10`
 
